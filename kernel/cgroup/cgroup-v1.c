@@ -1,4 +1,4 @@
- #include "cgroup-internal.h"
+#include "cgroup-internal.h"
 
 #include <linux/ctype.h>
 #include <linux/kmod.h>
@@ -549,14 +549,8 @@ static ssize_t __cgroup1_procs_write(struct kernfs_open_file *of,
 	if (ret)
 		goto out_finish;
 
-	ret = cgroup_attach_task(cgrp, task, threadgroup);=
-	/* This covers boosting for app launches and app transitions */
-	if (!ret && !threadgroup &&
-		!memcmp(of->kn->parent->name, "top-app", sizeof("top-app")) &&
-		task_is_zygote(task->parent)) {
-		cpu_input_boost_kick_max(1000);
-		devfreq_boost_kick_max(DEVFREQ_MSM_CPUBW, 500);
-	}
+	ret = cgroup_attach_task(cgrp, task, threadgroup);
+
 out_finish:
 	cgroup_procs_write_finish(task);
 out_unlock:
@@ -565,7 +559,7 @@ out_unlock:
 	return ret ?: nbytes;
 }
 
-  static ssize_t cgroup1_procs_write(struct kernfs_open_file *of,
+static ssize_t cgroup1_procs_write(struct kernfs_open_file *of,
 				   char *buf, size_t nbytes, loff_t off)
 {
 	return __cgroup1_procs_write(of, buf, nbytes, off, true);
